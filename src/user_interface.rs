@@ -25,7 +25,6 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
         )
         .split(f.size());
 
-
     let main_section = Layout::default()
         .direction(Direction::Horizontal)
         .constraints(
@@ -45,13 +44,22 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
         )
         .split(main_section[0]);
 
+    let right_section = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(
+            [
+                Constraint::Min(3),
+            ].as_ref()
+        )
+        .split(main_section[1]);
+
     //
     //
     //  MENU
     //
     //
     let menu_options: Vec<&str> = vec![
-        "Insert", "Show", "Help", "Quit"
+        "Insert", "Search", "List", "Help", "Quit"
     ];
 
     let menu_spans = menu_options
@@ -120,7 +128,7 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
             match state.mode {
                 InputMode::Title => Style::default()
                     .fg(Color::Yellow),
-                    _ => Style::default()
+                _ => Style::default()
             }
         );
     f.render_widget(title_input, left_block_layout[0]);
@@ -136,7 +144,7 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
             match state.mode {
                 InputMode::Username => Style::default()
                     .fg(Color::Yellow),
-                    _ => Style::default()
+                _ => Style::default()
             }
         );
     f.render_widget(username_input, left_block_layout[1]);
@@ -152,12 +160,12 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
             match state.mode {
                 InputMode::Password => Style::default()
                     .fg(Color::Yellow),
-                    _ => Style::default()
+                _ => Style::default()
             }
         );
     f.render_widget(password_input, left_block_layout[2]);
 
-    let submit_button = Paragraph::new("Submit")
+    let submit_button = Paragraph::new("Save")
         .alignment(Alignment::Center)
         .block(
             Block::default()
@@ -168,8 +176,52 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
             match state.mode {
                 InputMode::Submit => Style::default()
                     .fg(Color::Yellow),
-                    _ => Style::default()
+                _ => Style::default()
             }
         );
     f.render_widget(submit_button, left_block_layout[3]);
+
+    //
+    //
+    // HELP
+    //
+    //
+    match state.mode {
+        InputMode::Help => {
+            let right_block = Block::default()
+                .title("Help")
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded);
+            f.render_widget(right_block, right_section[0]);
+
+            let right_block_layout = Layout::default()
+                .direction(Direction::Vertical)
+                .margin(2)
+                .constraints(
+                    [
+                        Constraint::Min(3),
+                    ]
+                )
+                .split(right_section[0]);
+
+            const HELP_TEXT: &str = 
+r#" D              Delete
+ H              Help
+ I              Insert
+ L              List
+ S              Search
+ Q              Quit (from Normal)
+ Esc            Return to Normal Mode
+ Tab            Next field
+ Shift+Tab      Prev field
+ Enter          Active button
+ "#;
+
+            let help_text = Paragraph::new(HELP_TEXT);
+
+            f.render_widget(help_text, right_block_layout[0]);
+        },
+        _ => {}
+    }
+
 }

@@ -21,10 +21,11 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Char('q') => return Ok(()),
                         KeyCode::Char('s') => todo!(),
                         KeyCode::Char('l') => todo!(),
+                        KeyCode::Char('h') => state.change_mode(InputMode::Help),
                         KeyCode::Char('i') => state.change_mode(InputMode::Title),
                         _ => {}
                     }
-                }
+                },
                 InputMode::Title => {
                     match key.code {
                         KeyCode::Esc => {
@@ -36,7 +37,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Backspace => {state.new_title.pop();}
                         _ => {}
                     }
-                }
+                },
                 InputMode::Username => {
                     match key.code {
                         KeyCode::Esc => {
@@ -49,7 +50,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Backspace => {state.new_username.pop();}
                         _ => {}
                     }
-                }
+                },
                 InputMode::Password => {
                     match key.code {
                         KeyCode::Esc => {
@@ -62,14 +63,14 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Backspace => {state.new_password.pop();}
                         _ => {}
                     }
-                }
+                },
                 InputMode::List => {
                     match key.code {
                         KeyCode::Esc => state.change_mode(InputMode::Normal),
                         KeyCode::Char('l') => state.change_mode(InputMode::Normal),
                         _ => {}
                     }
-                }
+                },
                 InputMode::Search => {
                     match key.code {
                         KeyCode::Esc => {
@@ -81,7 +82,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Backspace => {state.new_title.pop();}
                         _ => {}
                     }
-                }
+                },
                 InputMode::Submit => {
                     match key.code {
                         KeyCode::Esc => {
@@ -92,7 +93,14 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Enter => todo!(),
                         _ => {}
                     }
-                }
+                },
+                InputMode::Help => {
+                    match key.code {
+                        KeyCode::Esc => state.change_mode(InputMode::Normal),
+                        KeyCode::Char('h') => state.change_mode(InputMode::Normal),
+                        _ => {}
+                    }
+                },
             }
         }
     }

@@ -6,4 +6,5 @@ pub enum InputMode {
     List,
     Search,
     Submit,
+    Help,
 }
