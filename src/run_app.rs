@@ -30,7 +30,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Esc => {
                             state.change_mode(InputMode::Normal);
                             state.clear_inputs();
-                        }
+                        },
                         KeyCode::Tab => state.change_mode(InputMode::Username),
                         KeyCode::Char(c) => state.new_title.push(c),
                         KeyCode::Backspace => {state.new_title.pop();}
@@ -42,8 +42,9 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Esc => {
                             state.change_mode(InputMode::Normal);
                             state.clear_inputs();
-                        }
-                        KeyCode::Tab => state.change_mode(InputMode::Username),
+                        },
+                        KeyCode::Tab => state.change_mode(InputMode::Password),
+                        KeyCode::BackTab => state.change_mode(InputMode::Title),
                         KeyCode::Char(c) => state.new_username.push(c),
                         KeyCode::Backspace => {state.new_username.pop();}
                         _ => {}
@@ -54,8 +55,9 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Esc => {
                             state.change_mode(InputMode::Normal);
                             state.clear_inputs();
-                        }
-                        KeyCode::Tab => state.change_mode(InputMode::Password),
+                        },
+                        KeyCode::Tab => state.change_mode(InputMode::Submit),
+                        KeyCode::BackTab => state.change_mode(InputMode::Username),
                         KeyCode::Char(c) => state.new_password.push(c),
                         KeyCode::Backspace => {state.new_password.pop();}
                         _ => {}
@@ -64,6 +66,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                 InputMode::List => {
                     match key.code {
                         KeyCode::Esc => state.change_mode(InputMode::Normal),
+                        KeyCode::Char('l') => state.change_mode(InputMode::Normal),
                         _ => {}
                     }
                 }
@@ -72,7 +75,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Esc => {
                             state.change_mode(InputMode::Normal);
                             state.clear_inputs();
-                        }
+                        },
                         KeyCode::Tab => state.change_mode(InputMode::Username),
                         KeyCode::Char(c) => state.new_title.push(c),
                         KeyCode::Backspace => {state.new_title.pop();}
@@ -81,8 +84,11 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                 }
                 InputMode::Submit => {
                     match key.code {
-                        KeyCode::Esc => {state.change_mode(InputMode::Normal);
-                        state.clear_inputs();}
+                        KeyCode::Esc => {
+                            state.change_mode(InputMode::Normal);
+                            state.clear_inputs();
+                        },
+                        KeyCode::BackTab => state.change_mode(InputMode::Password),
                         KeyCode::Enter => todo!(),
                         _ => {}
                     }
