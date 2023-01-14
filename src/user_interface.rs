@@ -3,10 +3,10 @@ use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
 use tui::text::{Span, Spans};
-use tui::widgets::{Block, Borders, BorderType, List, ListItem, ListState, Paragraph, Tabs};
+use tui::widgets::{Block, Borders, BorderType, List, ListItem, ListState, Paragraph, Tabs, Row, Cell, Table};
 
 use crate::enums::InputMode;
-use crate::structs::PassMan;
+use crate::structs::{PassMan, Password};
 
 
 pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
@@ -241,53 +241,48 @@ r#" D              Delete
     //  LIST
     //
     // 
-    let list_to_show = state.passwords.to_owned();
-
-    let items: Vec<ListItem> = list_to_show.into_iter()
-        .map(|item| {
-            match state.mode {
-                InputMode::List => {
-                    ListItem::new(
-                        format!(
-                            "{}: Username {} - Password {}",
-                            item.title.to_owned(),
-                            item.username.to_owned(),
-                            item.password.to_owned()
-                        )
-                    )
-                },
-                _ => ListItem::new(Span::from(item.title))
-            }
-        })
-        .collect();
-
     match state.mode {
         InputMode::List => {
-            let right_block = Block::default()
-                .title("All Passwords")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded);
-            f.render_widget(right_block, right_section[0]);
+            let rows: Vec<_> = state.passwords.iter()
+                .map(|item| {
+                    Row::new(vec![
+                        Cell::from(Span::raw(item.title.to_owned())),
+                        Cell::from(Span::raw(item.username.to_owned())),
+                        Cell::from(Span::raw(item.password.to_owned())),
+                    ])
+                })
+                .collect();
 
-            let right_block_layout = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(1)
-                .constraints(
-                    [
-                        Constraint::Min(1),
-                    ]
-                )
-                .split(right_section[0]);
+            let table = Table::new(rows)
+            .header(
+                Row::new(vec![
+                    Cell::from(Span::styled(
+                        "Title",
+                        Style::default().add_modifier(Modifier::BOLD)
+                    )),
+                    Cell::from(Span::styled(
+                        "Username",
+                        Style::default().add_modifier(Modifier::BOLD)
+                    )),
+                    Cell::from(Span::styled(
+                        "Password",
+                        Style::default().add_modifier(Modifier::BOLD)
+                    )),
+                ])
+            )
+            .block(
+                Block::default()
+                    .title("All Passwords")
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded),
+            )
+            .widths(&[
+                Constraint::Percentage(30),
+                Constraint::Percentage(30),
+                Constraint::Percentage(40),
+            ]);
 
-            let list = List::new(items)
-                .block(Block::default())
-                .highlight_symbol("->")
-                .highlight_style(
-                    Style::default()
-                        .add_modifier(Modifier::BOLD)
-                );
-            
-            f.render_stateful_widget(list, right_block_layout[0], &mut state.list_state);
+            f.render_widget(table, right_section[0]);
         },
         _ => {}
     }
