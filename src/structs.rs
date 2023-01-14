@@ -1,10 +1,21 @@
 use crate::enums::InputMode;
 use tui::widgets::ListState;
 
+#[derive(Clone)]
 pub struct Password {
-    title: String,
-    username: String,
-    password: String,
+    pub title: String,
+    pub username: String,
+    pub password: String,
+}
+
+impl Password {
+    fn new(title: String, username: String, password: String) -> Password {
+        Password {
+            title,
+            username,
+            password 
+        }
+    }
 }
 
 pub struct PassMan {
@@ -40,5 +51,16 @@ impl PassMan {
         self.new_title.clear();
         self.new_username.clear();
         self.new_password.clear();
+    }
+
+    pub fn save(&mut self) {
+        let password = Password::new(
+            self.new_title.to_owned(),
+            self.new_username.to_owned(),
+            self.new_password.to_owned(),
+        );
+        self.passwords.push(password);
+        self.clear_inputs();
+        self.change_mode(InputMode::Normal);
     }
 }

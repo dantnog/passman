@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let backend = CrosstermBackend::new(std::io::stdout());
     let mut terminal = Terminal::new(backend)?;
 
-    let result = run_app::run_app(&mut terminal, &mut state);
+    let result = run_app(&mut terminal, &mut state);
 
     disable_raw_mode();
     execute!(

@@ -20,7 +20,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                     match key.code {
                         KeyCode::Char('q') => return Ok(()),
                         KeyCode::Char('s') => todo!(),
-                        KeyCode::Char('l') => todo!(),
+                        KeyCode::Char('l') => state.change_mode(InputMode::List),
                         KeyCode::Char('h') => state.change_mode(InputMode::Help),
                         KeyCode::Char('i') => state.change_mode(InputMode::Title),
                         _ => {}
@@ -90,7 +90,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                             state.clear_inputs();
                         },
                         KeyCode::BackTab => state.change_mode(InputMode::Password),
-                        KeyCode::Enter => todo!(),
+                        KeyCode::Enter => state.save(),
                         _ => {}
                     }
                 },

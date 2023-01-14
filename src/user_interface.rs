@@ -94,7 +94,7 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
 
     //
     //
-    // NEW PASSWORD
+    //  NEW PASSWORD
     //
     //
     let left_block = Block::default()
@@ -183,7 +183,7 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
 
     //
     //
-    // HELP
+    //  HELP
     //
     //
     match state.mode {
@@ -224,4 +224,71 @@ r#" D              Delete
         _ => {}
     }
 
+    //
+    //
+    //  SEARCH
+    //
+    //
+    match state.mode {
+        InputMode::Search => {
+            todo!();
+        },
+        _ => {}
+    }
+
+    //
+    //
+    //  LIST
+    //
+    // 
+    let list_to_show = state.passwords.to_owned();
+
+    let items: Vec<ListItem> = list_to_show.into_iter()
+        .map(|item| {
+            match state.mode {
+                InputMode::List => {
+                    ListItem::new(
+                        format!(
+                            "{}: Username {} - Password {}",
+                            item.title.to_owned(),
+                            item.username.to_owned(),
+                            item.password.to_owned()
+                        )
+                    )
+                },
+                _ => ListItem::new(Span::from(item.title))
+            }
+        })
+        .collect();
+
+    match state.mode {
+        InputMode::List => {
+            let right_block = Block::default()
+                .title("All Passwords")
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded);
+            f.render_widget(right_block, right_section[0]);
+
+            let right_block_layout = Layout::default()
+                .direction(Direction::Vertical)
+                .margin(1)
+                .constraints(
+                    [
+                        Constraint::Min(1),
+                    ]
+                )
+                .split(right_section[0]);
+
+            let list = List::new(items)
+                .block(Block::default())
+                .highlight_symbol("->")
+                .highlight_style(
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                );
+            
+            f.render_stateful_widget(list, right_block_layout[0], &mut state.list_state);
+        },
+        _ => {}
+    }
 }
