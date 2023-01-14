@@ -19,7 +19,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                 InputMode::Normal => {
                     match key.code {
                         KeyCode::Char('q') => return Ok(()),
-                        KeyCode::Char('s') => todo!(),
+                        KeyCode::Char('s') => state.change_mode(InputMode::Search),
                         KeyCode::Char('l') => state.change_mode(InputMode::List),
                         KeyCode::Char('h') => state.change_mode(InputMode::Help),
                         KeyCode::Char('i') => state.change_mode(InputMode::Title),
@@ -77,9 +77,14 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                             state.change_mode(InputMode::Normal);
                             state.clear_inputs();
                         },
-                        KeyCode::Tab => state.change_mode(InputMode::Username),
-                        KeyCode::Char(c) => state.new_title.push(c),
-                        KeyCode::Backspace => {state.new_title.pop();}
+                        KeyCode::Char(c) => {
+                            state.search_text.push(c);
+                            state.search();
+                        },
+                        KeyCode::Backspace => {
+                            state.search_text.pop();
+                            state.search();
+                        }
                         _ => {}
                     }
                 },

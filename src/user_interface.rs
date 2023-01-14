@@ -231,7 +231,72 @@ r#" D              Delete
     //
     match state.mode {
         InputMode::Search => {
-            todo!();
+            let right_layout = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints(
+                    [
+                        Constraint::Length(3),
+                        Constraint::Min(3),
+                    ]
+                )
+                .split(right_section[0]);
+
+            let search_input = Paragraph::new(state.search_text.to_owned())
+                .block(
+                    Block::default()
+                        .title("Search")
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Rounded)
+                )
+                .style(
+                    match state.mode {
+                        InputMode::Search => Style::default()
+                            .fg(Color::Yellow),
+                        _ => Style::default()
+                    }
+                );
+            f.render_widget(search_input, right_layout[0]);
+
+            let rows: Vec<_> = state.search_list.iter()
+                .map(|item| {
+                    Row::new(vec![
+                        Cell::from(Span::raw(item.title.to_owned())),
+                        Cell::from(Span::raw(item.username.to_owned())),
+                        Cell::from(Span::raw(item.password.to_owned())),
+                    ])
+                })
+                .collect();
+
+            let table = Table::new(rows)
+            .header(
+                Row::new(vec![
+                    Cell::from(Span::styled(
+                        "Title",
+                        Style::default().add_modifier(Modifier::BOLD)
+                    )),
+                    Cell::from(Span::styled(
+                        "Username",
+                        Style::default().add_modifier(Modifier::BOLD)
+                    )),
+                    Cell::from(Span::styled(
+                        "Password",
+                        Style::default().add_modifier(Modifier::BOLD)
+                    )),
+                ])
+            )
+            .block(
+                Block::default()
+                    .title("All Passwords")
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded),
+            )
+            .widths(&[
+                Constraint::Percentage(30),
+                Constraint::Percentage(30),
+                Constraint::Percentage(40),
+            ]);
+
+            f.render_widget(table, right_layout[1]);
         },
         _ => {}
     }

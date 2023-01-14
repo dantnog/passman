@@ -63,4 +63,13 @@ impl PassMan {
         self.clear_inputs();
         self.change_mode(InputMode::Normal);
     }
+
+    pub fn search(&mut self) {
+        self.search_list = self.passwords.clone()
+            .into_iter()
+            .filter(|item| {
+                item.title.starts_with(&self.search_text.to_owned())
+            })
+            .collect();
+    }
 }
