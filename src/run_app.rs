@@ -5,7 +5,7 @@ use crossterm::event::Event::Key;
 use tui::backend::Backend;
 use tui::Terminal;
 
-use crate::enums::InputMode;
+use crate::enums::{InputMode, Move};
 use crate::structs::PassMan;
 use crate::user_interface::interface;
 
@@ -68,6 +68,8 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                     match key.code {
                         KeyCode::Esc => state.change_mode(InputMode::Normal),
                         KeyCode::Char('l') => state.change_mode(InputMode::Normal),
+                        KeyCode::Up => state.change_list_state(Move::Up),
+                        KeyCode::Down => state.change_list_state(Move::Down),
                         _ => {}
                     }
                 },

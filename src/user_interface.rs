@@ -144,9 +144,19 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
     //
     match state.mode {
         InputMode::List => {
-            let table = widgets::list::new(&state);
+            let right_layout = Layout::default()
+                .constraints(
+                    [
+                        Constraint::Length(4),
+                        Constraint::Min(3),
+                    ].as_ref()
+                )
+                .split(right_section[0]);
 
-            f.render_widget(table, right_section[0]);
+            let list = widgets::list::new(&state);
+
+            f.render_widget(list.1, right_layout[0]); // Table
+            f.render_stateful_widget(list.0, right_layout[1], &mut state.list_state); // List
         },
         _ => {}
     }

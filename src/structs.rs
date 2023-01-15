@@ -1,4 +1,4 @@
-use crate::enums::InputMode;
+use crate::enums::{InputMode, Move};
 use tui::widgets::ListState;
 
 #[derive(Clone)]
@@ -9,7 +9,7 @@ pub struct Password {
 }
 
 impl Password {
-    fn new(title: String, username: String, password: String) -> Password {
+    pub fn new(title: String, username: String, password: String) -> Password {
         Password {
             title,
             username,
@@ -73,5 +73,19 @@ impl PassMan {
                 item.title.starts_with(&self.search_text.to_owned())
             })
             .collect();
+    }
+
+    pub fn change_list_state(&mut self, movement: Move) {
+        let last = self.list_state.selected().unwrap();
+        match movement {
+            Move::Up => {
+                if last == 0 { return };
+                self.list_state.select(Some(last - 1));
+            },
+            Move::Down => {
+                self.list_state.select(Some(last + 1));
+            },
+            _ => {}
+        }
     }
 }

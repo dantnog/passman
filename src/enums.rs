@@ -8,3 +8,8 @@ pub enum InputMode {
     Submit,
     Help,
 }
+
+pub enum Move {
+    Up,
+    Down
+}

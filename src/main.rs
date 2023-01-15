@@ -20,6 +20,7 @@ use run_app::run_app;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut state = PassMan::new();
+    state.list_state.select(Some(0));
 
     enable_raw_mode();
     execute!(
