@@ -51,6 +51,7 @@ impl PassMan {
         self.new_title.clear();
         self.new_username.clear();
         self.new_password.clear();
+        self.search_text.clear();
     }
 
     pub fn save(&mut self) {
@@ -65,6 +66,7 @@ impl PassMan {
     }
 
     pub fn search(&mut self) {
+        if self.search_text == "" { return }
         self.search_list = self.passwords.clone()
             .into_iter()
             .filter(|item| {

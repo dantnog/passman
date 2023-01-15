@@ -7,13 +7,12 @@ use tui::widgets::{Block, Borders, BorderType, List, ListItem, ListState, Paragr
 
 use crate::enums::InputMode;
 use crate::structs::{PassMan, Password};
+use crate::widgets;
 
 
 pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
     //
-    //
     //  MAIN LAYOUT
-    //
     //
     let parent_chunk = Layout::default()
         .direction(Direction::Vertical)
@@ -54,48 +53,13 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
         .split(main_section[1]);
 
     //
-    //
     //  MENU
     //
-    //
-    let menu_options: Vec<&str> = vec![
-        "Insert", "Search", "List", "Help", "Quit"
-    ];
-
-    let menu_spans = menu_options
-        .iter()
-        .map(|t| {
-            let (first, rest) = t.split_at(1);
-            Spans::from(vec![
-                Span::styled(
-                    first,
-                    Style::default()
-                        .fg(Color::Yellow)
-                        .add_modifier(Modifier::UNDERLINED)
-                ),
-                Span::styled(
-                    rest,
-                    Style::default()
-                        .fg(Color::White)
-                )
-            ])
-        })
-        .collect();
-
-    let menu_tabs = Tabs::new(menu_spans)
-        .block(
-            Block::default()
-                .title("Menu")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-        )
-        .divider(Span::raw("|"));
+    let menu_tabs = widgets::menu::new();
     f.render_widget(menu_tabs, parent_chunk[0]);
 
     //
-    //
     //  NEW PASSWORD
-    //
     //
     let left_block = Block::default()
         .title("New Password")
@@ -117,74 +81,15 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
         )
         .split(left_section[0]);
 
-    let title_input = Paragraph::new(state.new_title.to_owned())
-        .block(
-            Block::default()
-                .title("Title")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-        )
-        .style(
-            match state.mode {
-                InputMode::Title => Style::default()
-                    .fg(Color::Yellow),
-                _ => Style::default()
-            }
-        );
-    f.render_widget(title_input, left_block_layout[0]);
-
-    let username_input = Paragraph::new(state.new_username.to_owned())
-        .block(
-            Block::default()
-                .title("Username")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-        )
-        .style(
-            match state.mode {
-                InputMode::Username => Style::default()
-                    .fg(Color::Yellow),
-                _ => Style::default()
-            }
-        );
-    f.render_widget(username_input, left_block_layout[1]);
+    let inputs = widgets::new_password::new(&state);
     
-    let password_input = Paragraph::new(state.new_password.to_owned())
-        .block(
-            Block::default()
-                .title("Password")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-        )
-        .style(
-            match state.mode {
-                InputMode::Password => Style::default()
-                    .fg(Color::Yellow),
-                _ => Style::default()
-            }
-        );
-    f.render_widget(password_input, left_block_layout[2]);
+    f.render_widget(inputs.0, left_block_layout[0]); // Title
+    f.render_widget(inputs.1, left_block_layout[1]); // Username
+    f.render_widget(inputs.2, left_block_layout[2]); // Password
+    f.render_widget(inputs.3, left_block_layout[3]); // Button
 
-    let submit_button = Paragraph::new("Save")
-        .alignment(Alignment::Center)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-        )
-        .style(
-            match state.mode {
-                InputMode::Submit => Style::default()
-                    .fg(Color::Yellow),
-                _ => Style::default()
-            }
-        );
-    f.render_widget(submit_button, left_block_layout[3]);
-
-    //
     //
     //  HELP
-    //
     //
     match state.mode {
         InputMode::Help => {
@@ -203,21 +108,8 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
                     ]
                 )
                 .split(right_section[0]);
-
-            const HELP_TEXT: &str = 
-r#" D              Delete
- H              Help
- I              Insert
- L              List
- S              Search
- Q              Quit (from Normal)
- Esc            Return to Normal Mode
- Tab            Next field
- Shift+Tab      Prev field
- Enter          Active button
- "#;
-
-            let help_text = Paragraph::new(HELP_TEXT);
+            
+            let help_text = widgets::help::new();
 
             f.render_widget(help_text, right_block_layout[0]);
         },
@@ -225,9 +117,7 @@ r#" D              Delete
     }
 
     //
-    //
     //  SEARCH
-    //
     //
     match state.mode {
         InputMode::Search => {
@@ -241,111 +131,20 @@ r#" D              Delete
                 )
                 .split(right_section[0]);
 
-            let search_input = Paragraph::new(state.search_text.to_owned())
-                .block(
-                    Block::default()
-                        .title("Search")
-                        .borders(Borders::ALL)
-                        .border_type(BorderType::Rounded)
-                )
-                .style(
-                    match state.mode {
-                        InputMode::Search => Style::default()
-                            .fg(Color::Yellow),
-                        _ => Style::default()
-                    }
-                );
-            f.render_widget(search_input, right_layout[0]);
+            let searchs = widgets::search::new(&state);
 
-            let rows: Vec<_> = state.search_list.iter()
-                .map(|item| {
-                    Row::new(vec![
-                        Cell::from(Span::raw(item.title.to_owned())),
-                        Cell::from(Span::raw(item.username.to_owned())),
-                        Cell::from(Span::raw(item.password.to_owned())),
-                    ])
-                })
-                .collect();
-
-            let table = Table::new(rows)
-            .header(
-                Row::new(vec![
-                    Cell::from(Span::styled(
-                        "Title",
-                        Style::default().add_modifier(Modifier::BOLD)
-                    )),
-                    Cell::from(Span::styled(
-                        "Username",
-                        Style::default().add_modifier(Modifier::BOLD)
-                    )),
-                    Cell::from(Span::styled(
-                        "Password",
-                        Style::default().add_modifier(Modifier::BOLD)
-                    )),
-                ])
-            )
-            .block(
-                Block::default()
-                    .title("All Passwords")
-                    .borders(Borders::ALL)
-                    .border_type(BorderType::Rounded),
-            )
-            .widths(&[
-                Constraint::Percentage(30),
-                Constraint::Percentage(30),
-                Constraint::Percentage(40),
-            ]);
-
-            f.render_widget(table, right_layout[1]);
+            f.render_widget(searchs.0, right_layout[0]); // Search Input
+            f.render_widget(searchs.1, right_layout[1]); // List
         },
         _ => {}
     }
 
     //
-    //
     //  LIST
     //
-    // 
     match state.mode {
         InputMode::List => {
-            let rows: Vec<_> = state.passwords.iter()
-                .map(|item| {
-                    Row::new(vec![
-                        Cell::from(Span::raw(item.title.to_owned())),
-                        Cell::from(Span::raw(item.username.to_owned())),
-                        Cell::from(Span::raw(item.password.to_owned())),
-                    ])
-                })
-                .collect();
-
-            let table = Table::new(rows)
-            .header(
-                Row::new(vec![
-                    Cell::from(Span::styled(
-                        "Title",
-                        Style::default().add_modifier(Modifier::BOLD)
-                    )),
-                    Cell::from(Span::styled(
-                        "Username",
-                        Style::default().add_modifier(Modifier::BOLD)
-                    )),
-                    Cell::from(Span::styled(
-                        "Password",
-                        Style::default().add_modifier(Modifier::BOLD)
-                    )),
-                ])
-            )
-            .block(
-                Block::default()
-                    .title("All Passwords")
-                    .borders(Borders::ALL)
-                    .border_type(BorderType::Rounded),
-            )
-            .widths(&[
-                Constraint::Percentage(30),
-                Constraint::Percentage(30),
-                Constraint::Percentage(40),
-            ]);
+            let table = widgets::list::new(&state);
 
             f.render_widget(table, right_section[0]);
         },

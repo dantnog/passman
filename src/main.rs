@@ -1,24 +1,19 @@
 use std::error::Error;
 
-use crossterm::event::{DisableMouseCapture, EnableMouseCapture, KeyCode};
-use crossterm::{event, execute};
-use crossterm::event::Event::Key;
+use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
+use crossterm::execute;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 
-use tui::backend::{Backend, CrosstermBackend};
-use tui::{Frame, Terminal};
-use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
-use tui::style::{Color, Modifier, Style};
-use tui::text::Span;
-use tui::widgets::{Block, Borders, BorderType, List, ListItem, ListState, Paragraph};
+use tui::backend::CrosstermBackend;
+use tui::Terminal;
 
 mod enums;
 mod structs;
 mod run_app;
 mod user_interface;
+mod widgets;
 
-use crate::enums::InputMode;
-use crate::structs::{Password, PassMan};
+use crate::structs::PassMan;
 use run_app::run_app;
 
 
