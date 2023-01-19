@@ -20,7 +20,10 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                     match key.code {
                         KeyCode::Char('q') => return Ok(()),
                         KeyCode::Char('s') => state.change_mode(InputMode::Search),
-                        KeyCode::Char('l') => state.change_mode(InputMode::List),
+                        KeyCode::Char('l') => {
+                            state.change_mode(InputMode::List);
+                            state.fetch();
+                        },
                         KeyCode::Char('h') => state.change_mode(InputMode::Help),
                         KeyCode::Char('i') => state.change_mode(InputMode::Title),
                         _ => {}

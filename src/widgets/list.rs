@@ -18,7 +18,7 @@ pub fn new<'a>(state: &PassMan) -> (List<'a>, Table<'a>) {
     if state.passwords.len() > 0 {
         selected_item = state.passwords[state.list_state.selected().unwrap()].clone();
     } else {
-        selected_item = Password::new("".to_string(), "".to_string(), "".to_string());
+        selected_item = Password::new(0, "".to_string(), "".to_string(), "".to_string());
     }
 
     let list = List::new(list_items)
@@ -30,7 +30,7 @@ pub fn new<'a>(state: &PassMan) -> (List<'a>, Table<'a>) {
         )
         .highlight_style(
             Style::default()
-                .fg(Color::White)
+                .fg(Color::Black)
                 .bg(Color::Yellow)
                 .add_modifier(Modifier::BOLD)
         );

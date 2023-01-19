@@ -12,6 +12,7 @@ mod structs;
 mod run_app;
 mod user_interface;
 mod widgets;
+mod db;
 
 use crate::structs::PassMan;
 use run_app::run_app;
@@ -19,6 +20,7 @@ use run_app::run_app;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
+    db::start();
     let mut state = PassMan::new();
     state.list_state.select(Some(0));
 
