@@ -73,16 +73,23 @@ impl PassMan {
     }
 
     pub fn delete(&mut self) {
-        let selected = self.list_state.selected().unwrap();
+        let index: usize = self.list_state.selected().unwrap();
+        let selected_ref: Option<&Password> = match self.mode {
+            InputMode::List => self.passwords.get(index),
+            InputMode::Search => self.search_list.get(index),
+            _ => None
+        };
 
-        if selected == 0 {
+        if index == 0 {
             self.list_state.select(Some(0));
         } else {
-            self.list_state.select(Some(selected - 1))
+            self.list_state.select(Some(index - 1))
         }
 
-        self.passwords.remove(selected);
-        db::delete(&selected);
+        let selected: Password = selected_ref.unwrap().to_owned();
+
+        db::delete(selected.id);
+        self.passwords.remove(index);
     }
 
     pub fn search(&mut self) {

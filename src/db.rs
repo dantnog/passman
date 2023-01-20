@@ -1,8 +1,8 @@
-use rusqlite::{Connection, Result};
+use rusqlite::{Connection, Result, params};
 use crate::structs::Password;
 
 pub fn start() -> Result<Connection> {
-    let path: &str = "./db/storage.db";
+    let path: &str = "./src/db/storage.db";
     let conn: Connection = Connection::open(path)?;
 
     conn.execute(
@@ -47,8 +47,8 @@ pub fn fetch() -> Result<Vec<Password>> {
     Ok(all_passwords)
 }
 
-pub fn delete(id: &usize) {
+pub fn delete(id: usize) {
     let conn = start().unwrap();
 
-    conn.execute("DELETE FROM passwords WHERE id=?1", [id]);
+    conn.execute("DELETE FROM passwords WHERE id = ?", params![id]);
 }
