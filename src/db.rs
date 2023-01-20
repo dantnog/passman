@@ -22,7 +22,7 @@ pub fn insert(title: &String, username: &String, password: &String) {
 
     conn.execute(
         "INSERT INTO passwords(title, username, password) VALUES (?1, ?2, ?3);",
-        (&title, &username, &password)
+        (title, username, password)
     );
 }
 
@@ -45,4 +45,10 @@ pub fn fetch() -> Result<Vec<Password>> {
     };
 
     Ok(all_passwords)
+}
+
+pub fn delete(id: &usize) {
+    let conn = start().unwrap();
+
+    conn.execute("DELETE FROM passwords WHERE id=?1", [id]);
 }

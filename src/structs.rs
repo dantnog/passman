@@ -72,6 +72,19 @@ impl PassMan {
         self.passwords = db::fetch().unwrap();
     }
 
+    pub fn delete(&mut self) {
+        let selected = self.list_state.selected().unwrap();
+
+        if selected == 0 {
+            self.list_state.select(Some(0));
+        } else {
+            self.list_state.select(Some(selected - 1))
+        }
+
+        self.passwords.remove(selected);
+        db::delete(&selected);
+    }
+
     pub fn search(&mut self) {
         if self.search_text == "" { return }
         if self.passwords.len() == 0 {

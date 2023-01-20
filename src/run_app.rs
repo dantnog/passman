@@ -71,6 +71,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                     match key.code {
                         KeyCode::Esc => state.change_mode(InputMode::Normal),
                         KeyCode::Char('l') => state.change_mode(InputMode::Normal),
+                        KeyCode::Char('d') => state.delete(),
                         KeyCode::Up => state.change_list_state(Move::Up),
                         KeyCode::Down => state.change_list_state(Move::Down),
                         _ => {}
@@ -89,7 +90,8 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                         KeyCode::Backspace => {
                             state.search_text.pop();
                             state.search();
-                        }
+                        },
+                        KeyCode::Char('d') => state.delete(),
                         _ => {}
                     }
                 },
