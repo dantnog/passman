@@ -3,22 +3,46 @@ use tui::style::{Modifier, Style, Color};
 use tui::text::Span;
 use tui::widgets::{Block, Borders, BorderType, Row, Cell, Table, List, ListItem};
 
+use crate::enums::InputMode;
 use crate::structs::{PassMan, Password};
 
 pub fn new<'a>(state: &PassMan) -> (List<'a>, Table<'a>) {
-    let list_items: Vec<ListItem> = state.passwords.iter()
-        .map(|item| {
-            ListItem::new(
-                Span::raw(item.title.to_owned())
-            )
-        })
-        .collect();
+    let mut list_items: Vec<ListItem> = vec![];
 
-    let mut selected_item: Password;
-    if state.passwords.len() > 0 {
-        selected_item = state.passwords[state.list_state.selected().unwrap()].clone();
-    } else {
-        selected_item = Password::new(0, "".to_string(), "".to_string(), "".to_string());
+    match state.mode {
+        InputMode::Search => {
+            list_items = state.search_list.iter()
+                .map(|item| {
+                    ListItem::new(
+                        Span::raw(item.title.to_owned())
+                    )
+                })
+                .collect();
+        },
+        _ => {
+            list_items = state.passwords.iter()
+                .map(|item| {
+                    ListItem::new(
+                        Span::raw(item.title.to_owned())
+                    )
+                })
+                .collect();
+        },
+    }
+
+    let mut selected_item: Password =  Password::new(0, "".to_string(), "".to_string(), "".to_string());
+    match state.mode {
+        InputMode::Search => {
+            if state.search_list.len() > 0 {
+                selected_item = state.search_list[state.list_state.selected().unwrap()].clone();
+            }
+        },
+        InputMode::List => {
+            if state.passwords.len() > 0 {
+                selected_item = state.passwords[state.list_state.selected().unwrap()].clone();
+            }
+        },
+        _ => {}
     }
 
     let list = List::new(list_items)

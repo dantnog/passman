@@ -1,3 +1,5 @@
+use core::panic;
+
 use crate::enums::{InputMode, Move};
 use tui::widgets::ListState;
 use crate::db;
@@ -67,8 +69,6 @@ impl PassMan {
     }
 
     pub fn fetch(&mut self) {
-        if self.passwords.len() > 0 { return }
-
         self.passwords = db::fetch().unwrap();
     }
 
@@ -88,15 +88,18 @@ impl PassMan {
 
         let selected: Password = selected_ref.unwrap().to_owned();
 
+        match self.mode {
+            InputMode::Search => {self.search_list.remove(index);},
+            InputMode::List => {self.passwords.remove(index);},
+            _ => panic!()
+        }
+
         db::delete(selected.id);
-        self.passwords.remove(index);
+        self.fetch();
     }
 
     pub fn search(&mut self) {
         if self.search_text == "" { return }
-        if self.passwords.len() == 0 {
-            self.passwords = db::fetch().unwrap();
-        }
 
         self.search_list = self.passwords.clone()
             .into_iter()
@@ -108,20 +111,42 @@ impl PassMan {
 
     pub fn change_list_state(&mut self, movement: Move) {
         let last = self.list_state.selected().unwrap();
+
         match movement {
             Move::Up => {
                 if last == 0 {
-                    return self.list_state.select(Some(self.passwords.len() - 1));
+                    return self.list_state.select(Some(
+                        match self.mode {
+                            InputMode::Search => self.search_list.len() - 1,
+                            InputMode::List => self.passwords.len() - 1,
+                            _ => panic!()
+                        }
+                    ));
                 };
                 self.list_state.select(Some(last - 1));
             },
             Move::Down => {
-                if last == self.passwords.len() - 1 {
-                    return self.list_state.select(Some(0));
-                };
-                self.list_state.select(Some(last + 1));
+                match self.mode {
+                    InputMode::Search => {
+                        if last == self.search_list.len() - 1 {
+                            return self.list_state.select(Some(0));
+                        };
+                        self.list_state.select(Some(last + 1))
+                    },
+                    InputMode::List => {
+                        if last == self.passwords.len() - 1 {
+                            return self.list_state.select(Some(0));
+                        };
+                        self.list_state.select(Some(last + 1));
+                    },
+                    _ => panic!()
+                }
             },
             _ => {}
         }
+    }
+
+    pub fn reset_list_state(&mut self) {
+        self.list_state.select(Some(0));
     }
 }

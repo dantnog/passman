@@ -1,10 +1,15 @@
 use rusqlite::{Connection, Result, params};
 use crate::structs::Password;
 
-pub fn start() -> Result<Connection> {
+pub fn connect() -> Result<Connection> {
     let path: &str = "./src/db/storage.db";
     let conn: Connection = Connection::open(path)?;
 
+    Ok(conn)
+}
+
+pub fn start() {
+    let conn: Connection = connect().unwrap();
     conn.execute(
     "CREATE TABLE IF NOT EXISTS passwords(
             id INTEGER PRIMARY KEY,
@@ -13,12 +18,10 @@ pub fn start() -> Result<Connection> {
             password VARCHAR(120) NOT NULL
         );", ()
     );
-
-    Ok(conn)
 }
 
 pub fn insert(title: &String, username: &String, password: &String) {
-    let conn = start().unwrap();
+    let conn = connect().unwrap();
 
     conn.execute(
         "INSERT INTO passwords(title, username, password) VALUES (?1, ?2, ?3);",
@@ -27,7 +30,7 @@ pub fn insert(title: &String, username: &String, password: &String) {
 }
 
 pub fn fetch() -> Result<Vec<Password>> {
-    let conn = start().unwrap();
+    let conn = connect().unwrap();
 
     let mut stmt = conn.prepare("SELECT * FROM passwords;")?;
     let passwords_iter = stmt.query_map([], |row| {
@@ -48,7 +51,7 @@ pub fn fetch() -> Result<Vec<Password>> {
 }
 
 pub fn delete(id: usize) {
-    let conn = start().unwrap();
+    let conn = connect().unwrap();
 
     conn.execute("DELETE FROM passwords WHERE id = ?", params![id]);
 }

@@ -11,6 +11,8 @@ use crate::user_interface::interface;
 
 
 pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> Result<(), std::io::Error> {
+    state.fetch(); // first load
+
     loop {
         terminal.draw(|f| interface(f, state))?;
 
@@ -19,11 +21,11 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                 InputMode::Normal => {
                     match key.code {
                         KeyCode::Char('q') => return Ok(()),
-                        KeyCode::Char('s') => state.change_mode(InputMode::Search),
-                        KeyCode::Char('l') => {
-                            state.change_mode(InputMode::List);
-                            state.fetch();
+                        KeyCode::Char('s') => {
+                            state.change_mode(InputMode::Search);
+                            state.reset_list_state();
                         },
+                        KeyCode::Char('l') => state.change_mode(InputMode::List),
                         KeyCode::Char('h') => state.change_mode(InputMode::Help),
                         KeyCode::Char('i') => state.change_mode(InputMode::Title),
                         _ => {}
@@ -71,7 +73,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                     match key.code {
                         KeyCode::Esc => state.change_mode(InputMode::Normal),
                         KeyCode::Char('l') => state.change_mode(InputMode::Normal),
-                        KeyCode::Char('d') => state.delete(),
+                        KeyCode::Delete => state.delete(),
                         KeyCode::Up => state.change_list_state(Move::Up),
                         KeyCode::Down => state.change_list_state(Move::Down),
                         _ => {}
@@ -91,7 +93,9 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, state: &mut PassMan) -> R
                             state.search_text.pop();
                             state.search();
                         },
-                        KeyCode::Char('d') => state.delete(),
+                        KeyCode::Delete => state.delete(),
+                        KeyCode::Up => state.change_list_state(Move::Up),
+                        KeyCode::Down => state.change_list_state(Move::Down),
                         _ => {}
                     }
                 },

@@ -14,7 +14,7 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
     //
     //  MAIN LAYOUT
     //
-    let parent_chunk = Layout::default()
+    let parent_chunk: Vec<Rect> = Layout::default()
         .direction(Direction::Vertical)
         .constraints(
             [
@@ -24,7 +24,7 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
         )
         .split(f.size());
 
-    let main_section = Layout::default()
+    let main_section: Vec<Rect> = Layout::default()
         .direction(Direction::Horizontal)
         .constraints(
             [
@@ -34,7 +34,7 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
         )
         .split(parent_chunk[1]);
 
-    let left_section = Layout::default()
+    let left_section: Vec<Rect> = Layout::default()
         .direction(Direction::Vertical)
         .constraints(
             [
@@ -43,7 +43,7 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
         )
         .split(main_section[0]);
 
-    let right_section = Layout::default()
+    let right_section: Vec<Rect> = Layout::default()
         .direction(Direction::Vertical)
         .constraints(
             [
@@ -55,13 +55,13 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
     //
     //  MENU
     //
-    let menu_tabs = widgets::menu::new();
+    let menu_tabs: Tabs = widgets::menu::new();
     f.render_widget(menu_tabs, parent_chunk[0]);
 
     //
     //  NEW PASSWORD
     //
-    let left_block = Block::default()
+    let left_block: Block = Block::default()
         .title("New Password")
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded);
@@ -81,25 +81,25 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
         )
         .split(left_section[0]);
 
-    let inputs = widgets::new_password::new(&state);
+    let inputs: (Paragraph, Paragraph, Paragraph, Paragraph) = widgets::new_password::new(&state);
     
     f.render_widget(inputs.0, left_block_layout[0]); // Title
     f.render_widget(inputs.1, left_block_layout[1]); // Username
     f.render_widget(inputs.2, left_block_layout[2]); // Password
     f.render_widget(inputs.3, left_block_layout[3]); // Button
 
-    //
-    //  HELP
-    //
     match state.mode {
+        //
+        //  HELP
+        //
         InputMode::Help => {
-            let right_block = Block::default()
+            let right_block: Block = Block::default()
                 .title("Help")
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded);
             f.render_widget(right_block, right_section[0]);
 
-            let right_block_layout = Layout::default()
+            let right_block_layout: Vec<Rect> = Layout::default()
                 .direction(Direction::Vertical)
                 .margin(2)
                 .constraints(
@@ -109,42 +109,39 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
                 )
                 .split(right_section[0]);
             
-            let help_text = widgets::help::new();
+            let help_text: Paragraph = widgets::help::new();
 
             f.render_widget(help_text, right_block_layout[0]);
         },
-        _ => {}
-    }
-
-    //
-    //  SEARCH
-    //
-    match state.mode {
+        
+        //
+        //  SEARCH
+        //
         InputMode::Search => {
-            let right_layout = Layout::default()
+            let right_layout: Vec<Rect> = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints(
                     [
                         Constraint::Length(3),
+                        Constraint::Length(4),
                         Constraint::Min(3),
                     ]
                 )
                 .split(right_section[0]);
 
-            let searchs = widgets::search::new(&state);
+            let search_input: Paragraph = widgets::search::new(&state);
+            let list: (List, Table) = widgets::list::new(&state);
 
-            f.render_widget(searchs.0, right_layout[0]); // Search Input
-            f.render_widget(searchs.1, right_layout[1]); // List
+            f.render_widget(search_input, right_layout[0]); // Search Input
+            f.render_widget(list.1, right_layout[1]); // Table
+            f.render_stateful_widget(list.0, right_layout[2], &mut state.list_state); // List
         },
-        _ => {}
-    }
 
-    //
-    //  LIST
-    //
-    match state.mode {
+        //
+        //  LIST
+        //
         InputMode::List => {
-            let right_layout = Layout::default()
+            let right_layout: Vec<Rect> = Layout::default()
                 .constraints(
                     [
                         Constraint::Length(4),
@@ -153,11 +150,29 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
                 )
                 .split(right_section[0]);
 
-            let list = widgets::list::new(&state);
+            let list: (List, Table) = widgets::list::new(&state);
 
             f.render_widget(list.1, right_layout[0]); // Table
             f.render_stateful_widget(list.0, right_layout[1], &mut state.list_state); // List
         },
-        _ => {}
+
+        //
+        // STATIC LIST
+        //
+        _ => {
+            let right_layout: Vec<Rect> = Layout::default()
+                .constraints(
+                    [
+                        Constraint::Length(4),
+                        Constraint::Min(3),
+                    ].as_ref()
+                )
+                .split(right_section[0]);
+
+            let list: (List, Table) = widgets::list::new(&state);
+
+            f.render_widget(list.1, right_layout[0]); // Table
+            f.render_widget(list.0, right_layout[1]); // List
+        }
     }
 }
