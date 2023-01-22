@@ -1,12 +1,10 @@
 use tui::Frame;
 use tui::backend::Backend;
-use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
-use tui::style::{Color, Modifier, Style};
-use tui::text::{Span, Spans};
-use tui::widgets::{Block, Borders, BorderType, List, ListItem, ListState, Paragraph, Tabs, Row, Cell, Table};
+use tui::layout::{Constraint, Direction, Layout, Rect};
+use tui::widgets::{Block, Borders, BorderType, List, Paragraph, Tabs, Table};
 
 use crate::enums::InputMode;
-use crate::structs::{PassMan, Password};
+use crate::structs::PassMan;
 use crate::widgets;
 
 
@@ -55,7 +53,17 @@ pub fn interface<B: Backend>(f: &mut Frame<B>, state: &mut PassMan) {
     //
     //  MENU
     //
-    let menu_tabs: Tabs = widgets::menu::new();
+    let menu_tabs: Tabs = widgets::menu::new(match state.mode {
+        InputMode::Normal => 0,
+        InputMode::Title => 1,
+        InputMode::Username => 1,
+        InputMode::Password => 1,
+        InputMode::Submit => 1,
+        InputMode::Search => 2,
+        InputMode::List => 3,
+        InputMode::Help => 4,
+        _ => 0
+    });
     f.render_widget(menu_tabs, parent_chunk[0]);
 
     //
